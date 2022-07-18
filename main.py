@@ -3,7 +3,6 @@ import requests
 import json
 import hmac, hashlib
 import time
-from pynput.keyboard import Key, Listener
 
 class Client():
 
@@ -67,7 +66,6 @@ class Client():
                 f.writelines(f'timestamp: {self.timestamp} url: {self.url}\n message: {self.r.text}\n\n')
             else: f.writelines(f'timestamp: {self.timestamp}, ERROR {self.r.text}')
 
-
     def menu(self):
         cmd = input(f'Menu: \n'
                     f'[1] - Check connection\n'
@@ -85,7 +83,6 @@ class Client():
                 print('Wrong command!')
             cmd = input('Type command: ')
         return
-
 
 if __name__ == '__main__':
     task = Client()
