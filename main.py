@@ -31,33 +31,49 @@ class Client():
         print('Open orders count:', self.count, 'tickers is:', *self.tickers)
 
     def close_pos(self):
+        try:
             if self.count != 0:
                 user_symbol = input('Type ticker for cancel or press [ENTER] to cancel ALL open orders: ')
                 if user_symbol != '':
                     self.symbol = user_symbol
                     task.urlgen()
+                    task.save_log()
                     self.symbol = []
                 else:
                     for i in range(len(self.tickers)):
                         self.symbol = self.tickers[i]
                         task.urlgen()
+                        task.save_log()
                         self.symbol = []
             else:
                 print('[There is no open orders to cancel]')
+        except:
+            print('Orders not found, get open orders')
 
     def urlgen(self):
         self.timestamp = int(time.time() * 1000)
         self.querystring = urlencode({'symbol': self.symbol, 'timestamp': self.timestamp, 'recvWindow': 10000})
         self.key = hmac.new(self.API_SECRET.encode('utf-8'), self.querystring.encode('utf-8'),digestmod=hashlib.sha256).hexdigest()
         headers = {'Content-type': 'application/x-www-form-urlencoded', 'X-MBX-APIKEY': self.API_KEY}
-        url = f'https://testnet.binancefuture.com/fapi/v1/allOpenOrders?{self.querystring}&signature={self.key}'
-        r = requests.delete(url, headers=headers)
+        self.url = f'https://testnet.binancefuture.com/fapi/v1/allOpenOrders?{self.querystring}&signature={self.key}'
+        self.r = requests.delete(self.url, headers=headers)
         self.symbol = []
-        print(url)
-        print(r.text)
+        print(self.url)
+        print(self.r.text)
+
+    def save_log(self):
+        with open('log.txt', 'a') as f:
+            if self.r.status_code == 200:
+                f.writelines(f'timestamp: {self.timestamp} url: {self.url}\n message: {self.r.text}\n\n')
+            else: f.writelines(f'timestamp: {self.timestamp}, ERROR {self.r.text}')
+
 
     def menu(self):
-        cmd = input('Type command: ')
+        cmd = input(f'Menu: \n'
+                    f'[1] - Check connection\n'
+                    f'[2] - Get open orders\n'
+                    f'[3] - CLose open orders\n'
+                    f'Type command: ')
         while True:
             if cmd == '1':
                 task.check_con()
