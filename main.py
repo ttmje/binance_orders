@@ -20,14 +20,14 @@ class Client():
         self.timestamp = int(time.time() * 1000)
         self.querystring = urlencode({'timestamp': self.timestamp, 'recvWindow': 15000})
         self.key = hmac.new(self.API_SECRET.encode('utf-8'), self.querystring.encode('utf-8'),digestmod=hashlib.sha256).hexdigest()
-        headers = {'Content-type': 'application/x-www-form-urlencoded', 'X-MBX-APIKEY': self.API_KEY}
+        self.headers = {'Content-type': 'application/x-www-form-urlencoded', 'X-MBX-APIKEY': self.API_KEY}
         url = f'https://testnet.binancefuture.com/fapi/v1/openOrders?{self.querystring}&signature={self.key}'
-        self.orders = requests.get(url, headers=headers)
+        self.orders = requests.get(url, headers=self.headers)
         self.count = len(json.loads(self.orders.text))
         self.tickers = []
         for i in range(len(json.loads(self.orders.text))):
             self.tickers.append(json.loads(self.orders.text)[i]['symbol'])
-        print('Open orders count:', self.count, 'tickers is:', *self.tickers)
+        print('Open orders count:', self.count, ', tickers is:', *self.tickers)
 
     def close_pos(self):
         try:
@@ -36,18 +36,35 @@ class Client():
                 if user_symbol != '':
                     self.symbol = user_symbol
                     task.urlgen()
-                    task.save_log()
-                    self.symbol = []
+                    self.tickers.remove(user_symbol.upper())
+                    print('Closed: 1', 'Open:', task.get_orders_count())
                 else:
                     for i in range(len(self.tickers)):
                         self.symbol = self.tickers[i]
                         task.urlgen()
-                        task.save_log()
                         self.symbol = []
+                    if json.loads(self.r.text)['code'] == 200:
+                        print('Closed:', len(self.tickers), 'Open:', task.get_orders_count())
+                    else:
+                        for error in reversed(self.tickers):
+                            self.tickers.remove(error)
+                        print('Error!', 'Closed:', len(self.tickers), 'Open:', task.get_orders_count())
             else:
                 print('[There is no open orders to cancel]')
         except:
             print('Orders not found, get open orders')
+
+    def get_orders_count(self):
+        self.timestamp = int(time.time() * 1000)
+        self.querystring = urlencode({'timestamp': self.timestamp, 'recvWindow': 15000})
+        self.key = hmac.new(self.API_SECRET.encode('utf-8'), self.querystring.encode('utf-8'),
+                            digestmod=hashlib.sha256).hexdigest()
+        self.headers = {'Content-type': 'application/x-www-form-urlencoded', 'X-MBX-APIKEY': self.API_KEY}
+        url = f'https://testnet.binancefuture.com/fapi/v1/openOrders?{self.querystring}&signature={self.key}'
+        self.orders = requests.get(url, headers=self.headers)
+        self.count = len(json.loads(self.orders.text))
+        return self.count
+
 
     def urlgen(self):
         self.timestamp = int(time.time() * 1000)
@@ -57,8 +74,8 @@ class Client():
         self.url = f'https://testnet.binancefuture.com/fapi/v1/allOpenOrders?{self.querystring}&signature={self.key}'
         self.r = requests.delete(self.url, headers=headers)
         self.symbol = []
-        print(self.url)
-        print(self.r.text)
+        #print(self.url)
+        #print(self.r.text)
 
     def save_log(self):
         with open('log.txt', 'a') as f:
