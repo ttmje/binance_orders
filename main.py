@@ -1,8 +1,10 @@
+from urllib.parse import urlparse, parse_qs
 from urllib.parse import urlencode
 import requests
 import json
 import hmac, hashlib
 import time
+
 
 class Client():
 
@@ -39,6 +41,7 @@ class Client():
                     self.tickers.remove(user_symbol.upper())
                     print('Closed: 1', 'Open:', task.get_orders_count())
                 else:
+                    self.tickers.append('BTTTTTTCUSDT')
                     for i in range(len(self.tickers)):
                         self.symbol = self.tickers[i]
                         task.urlgen()
@@ -46,9 +49,12 @@ class Client():
                     if json.loads(self.r.text)['code'] == 200:
                         print('Closed:', len(self.tickers), 'Open:', task.get_orders_count())
                     else:
-                        for error in reversed(self.tickers):
-                            self.tickers.remove(error)
-                        print('Error!', 'Closed:', len(self.tickers), 'Open:', task.get_orders_count())
+                        errors = urlparse(self.url)
+                        err = (parse_qs(errors[4]))
+                        tkr = err["symbol"]
+                        itemstoremove = set(err["symbol"])
+                        b = [x for x in self.tickers if x not in itemstoremove]
+                        print(f'Error! {tkr}, Closed: {len(b)}, Open:, {task.get_orders_count()}')
             else:
                 print('[There is no open orders to cancel]')
         except:
