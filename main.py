@@ -5,6 +5,7 @@ import json
 import hmac, hashlib
 import time
 from flask import Flask, render_template, request, flash
+import base64
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'segwergergwergwergwergwer5gy34525345'
@@ -143,6 +144,8 @@ class Client():
                 print('Wrong command!')
             cmd = input('Type command: ')
         return
+
+
 
 if __name__ == '__main__':
     task = Client()
