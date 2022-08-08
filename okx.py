@@ -14,22 +14,22 @@ class Client_okx():
     PASSPHRASE = "Ololodota76."
 
     def get_timestamp(self):
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         timestamp = now.isoformat("T", "milliseconds")
         return timestamp + "Z"
 
     def get_open_orders(self):
             time = okx.get_timestamp()
+            print(time)
             self.prehash = time + "GET" + "/api/v5/trade/orders-pending" + ''
-            self.key = hmac.new(self.API_SECRET.encode('utf-8'), self.prehash.encode('utf-8'), digestmod=hashlib.sha256).hexdigest()
-            self.encoded = base64.b64encode(self.key.encode('ascii'))
+            self.key = hmac.new(self.API_SECRET.encode('utf-8'), self.prehash.encode('utf-8'), digestmod=hashlib.sha256).digest()
+            self.encoded = base64.b64encode(self.key)
             self.headers = {'Content-Type':'application/json',
-                            'accept' : 'application/json',
                             'OK-ACCESS-KEY':self.API_KEY,
                             'OK-ACCESS-SIGN':self.encoded,
                             'OK-ACCESS-TIMESTAMP':time,
                             'OK-ACCESS-PASSPHRASE':self.PASSPHRASE,
-                            'expTime': '1696432350'}
+                            'x-simulated-trading': '1'}
             url = 'https://www.okx.com/api/v5/trade/orders-pending'
             self.orders = requests.get(url, headers=self.headers)
             print(self.orders.text)
