@@ -6,23 +6,30 @@
     <title>binance orders</title>
 </head>
 <body>
-<div class="col-lg-6 col-md-8 mx-auto">
-    <div class="row">
-         <form method="post">
-        <input type="submit" name="get_open_orders" class="btn btn-success my-2 form-control" value="Get open orders"></br>
-        <input type="submit" name="close_all_orders" class="btn btn-danger my-2 form-control" value="Close ALL open orders"></br>
-        <input type="submit" name="close_one" class="btn btn-info form-control my-2 " value="Close ticker (type in textarea bellow)"></br>
-             {%for msg in get_flashed_messages()%}
-        <input type="text" name="ticker" class="form-control " placeholder="info" value="{{msg}}"></br>
-             {%endfor%}
 
-
-
-
-        </form>
+<div class="container overflow-hidden text-center ">
+    <form method="post">
+  <div class="row gy-2 g-6">
+    <div class="col-2 gy-3">
+      <input type="submit" name="binance" class="btn btn-success " value="Binance"></br>
     </div>
-
+    <div class="col-10 gy-3">
+         {%for msg in get_flashed_messages()%}
+        <input type="text" name="ticker" class="form-control" placeholder="info" value="{{msg}}"></br>
+             {%endfor%}
+    </div>
+    <div class="col-2 gy-3">
+     <input type="submit" name="okex" class="btn btn-danger " value="Okex    "></br>
+    </div>
+    <div class="col-10 gy-3">
+        {%for msg in get_flashed_messages()%}
+      <input type="text" name="ticker" class="form-control " placeholder="info" value="{{msg}}"></br>
+         {%endfor%}
+    </div>
+  </div>
+          </form>
 </div>
+
 
 </body>
 </html>

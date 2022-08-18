@@ -5,6 +5,7 @@ import json
 import hmac, hashlib
 import time
 from flask import Flask, render_template, request, flash
+from okx import Client_okx
 import base64
 
 app = Flask(__name__)
@@ -12,27 +13,21 @@ app.config['SECRET_KEY'] = 'segwergergwergwergwergwer5gy34525345'
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        if request.form.get('get_open_orders'):
+        if request.form.get('binance'):
            if task.get_open_orders() == []:
               flash(f"Open orders: 0")
            else:
               flash(f"Open orders: {task.get_open_orders()}")
            return render_template("index.html")
-
-        elif request.form.get('close_all_orders'):
+        elif request.form.get('binance'):
             flash(f'Closed: {task.close_pos()} Open: {task.get_orders_count()}')
             return render_template("index.html")
 
-        elif request.form.get('close_one'):
-            try:
-                user_symbol = request.form.get('ticker')
-                if len(user_symbol) <= 7:
-                    flash(f'Closed: {task.close_one(user_symbol)} Open: {task.get_orders_count()}')
-                    return render_template("index.html")
-                else:
-                    return render_template("index.html")
-            except:
-                return render_template("index.html")
+        elif request.form.get('okex'):
+            pass
+        else:
+            return render_template("index.html")
+
     else:
         return render_template("index.html")
 
